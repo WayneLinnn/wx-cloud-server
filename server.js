@@ -29,12 +29,17 @@ db.connect((err) => {
   console.log("数据库连接成功");
 });
 
+// 健康检查路由
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // 测试路由
 app.get("/", (req, res) => {
   res.json({ message: "服务器运行正常" });
 });
 
-// 启动服务器
-app.listen(port, () => {
+// 启动服务器，监听所有网络接口
+app.listen(port, "0.0.0.0", () => {
   console.log(`服务器运行在端口 ${port}`);
 });
