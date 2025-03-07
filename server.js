@@ -39,6 +39,15 @@ app.get("/", (req, res) => {
   res.json({ message: "服务器运行正常" });
 });
 
+// 新增测试路由 - 用于验证自动部署
+app.get("/test-deploy", (req, res) => {
+  res.json({
+    message: "自动部署测试成功！",
+    timestamp: new Date().toISOString(),
+    version: "1.0.1",
+  });
+});
+
 // 启动服务器，监听所有网络接口
 app.listen(port, "0.0.0.0", () => {
   console.log(`服务器运行在端口 ${port}`);
