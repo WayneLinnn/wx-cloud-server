@@ -1,0 +1,29 @@
+name: Deploy to WeChat Cloud
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Install WeChat Cloud CLI
+        run: npm install -g @wxcloud/cli
+
+      - name: Login to WeChat Cloud
+        run: |
+          wxcloud login --username bundlebee --password AAO9G7SEAAABAAAAAAA2roaUaM1106IZKnLEZyAAAAAraAdzKm8i8JwFJ68cDOJBtlHsmv3F8e00LCv7f+tYviVChrhd9ZGniFLccMOofbC08DB/3wiw/xrNYKf3ENZRJo4izD9OZIS1EFi+5+oLbeWOhy/Km/3rmMN+1205K33B86p7u6E0TdNu3H//i1H1WNR4XRTEZg=
+
+      - name: Deploy to WeChat Cloud
+        run: wxcloud deploy
