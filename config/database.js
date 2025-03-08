@@ -5,15 +5,8 @@ const dotenv = require("dotenv");
 // 使用绝对路径加载.env文件
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
-// 打印环境变量进行调试
-console.log("Database Config:", {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  database: process.env.DB_NAME,
-  port: 3306,
-});
-
-const pool = mysql.createPool({
+// 创建连接池配置
+const dbConfig = {
   host: "10.41.111.100", // 内网地址
   port: 3306, // 端口号
   user: "root", // root账号
@@ -21,7 +14,16 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+};
+
+// 打印连接配置（不包含密码）
+console.log("Database Config:", {
+  host: dbConfig.host,
+  port: dbConfig.port,
+  user: dbConfig.user,
 });
+
+const pool = mysql.createPool(dbConfig);
 
 // 测试连接并创建数据库
 async function initializeDatabase() {
