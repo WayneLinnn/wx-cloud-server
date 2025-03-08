@@ -16,23 +16,41 @@ console.log("Database Config:", {
 const pool = mysql.createPool({
   host: "10.41.111.100", // 内网地址
   port: 3306, // 端口号
-  user: "bunblebee", // 你创建的账号
-  password: "Linfeng19960110", // 账号密码
-  database: "bunblebee", // 数据库名称
+  user: "root", // root账号
+  password: "Linfeng19960110", // root密码
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
 });
 
-// 测试连接
-pool
-  .getConnection()
-  .then((connection) => {
+// 测试连接并创建数据库
+async function initializeDatabase() {
+  try {
+    const connection = await pool.getConnection();
     console.log("数据库连接成功");
+
+    // 创建数据库（如果不存在）
+    await connection.query("CREATE DATABASE IF NOT EXISTS bunblebee");
+    console.log("数据库 bunblebee 创建成功或已存在");
+
+    // 切换到新创建的数据库
+    await connection.query("USE bunblebee");
+    console.log("切换到 bunblebee 数据库");
+
     connection.release();
+  } catch (err) {
+    console.error("数据库初始化失败:", err);
+    throw err;
+  }
+}
+
+// 执行初始化
+initializeDatabase()
+  .then(() => {
+    console.log("数据库初始化完成");
   })
   .catch((err) => {
-    console.error("数据库连接失败:", err);
+    console.error("初始化过程出错:", err);
   });
 
 module.exports = pool;

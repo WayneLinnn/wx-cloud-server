@@ -16,7 +16,7 @@ COPY . .
 # 设置环境变量
 ENV PORT=80
 ENV DB_HOST=10.41.111.100
-ENV DB_USER=bunblebee
+ENV DB_USER=root
 ENV DB_PASSWORD=Linfeng19960110
 ENV DB_NAME=bunblebee
 
