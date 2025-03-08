@@ -37,30 +37,40 @@ app.get("/health", (req, res) => {
 // 测试路由
 app.get("/", (req, res) => {
   console.log("根路径请求");
-  res.json({ message: "服务器运行正常啊" });
+  res.json({ message: "服务器运行正常" });
 });
 
 // 检查数据库状态
 app.get("/check-database", async (req, res) => {
   try {
-    // 检查当前数据库
-    const [rows] = await db.query("SELECT DATABASE() as current_database");
-    const currentDB = rows[0].current_database;
+    console.log("正在检查数据库状态...");
+    const connection = await db.getConnection();
 
-    // 获取所有数据库列表
-    const [databases] = await db.query("SHOW DATABASES");
+    // 获取当前数据库
+    const [dbResult] = await connection.query(
+      "SELECT DATABASE() as current_db"
+    );
+    const currentDB = dbResult[0].current_db;
 
-    // 检查 bunblebee 数据库是否存在
-    const bunblebeeExists = databases.some((db) => db.Database === "bunblebee");
+    // 获取所有数据库
+    const [databases] = await connection.query("SHOW DATABASES");
+
+    connection.release();
 
     res.json({
+      status: "success",
+      message: "数据库连接成功",
       current_database: currentDB,
-      all_databases: databases.map((db) => db.Database),
-      bunblebee_exists: bunblebeeExists,
+      available_databases: databases.map((db) => db.Database),
     });
   } catch (error) {
     console.error("数据库检查失败:", error);
-    res.status(500).json({ error: "数据库检查失败", details: error.message });
+    res.status(500).json({
+      error: "数据库检查失败",
+      details: error.message,
+      code: error.code,
+      state: error.sqlState,
+    });
   }
 });
 
@@ -83,23 +93,27 @@ app.post("/create-database", async (req, res) => {
 // 测试数据库连接
 app.get("/test-db", async (req, res) => {
   try {
-    // 获取当前数据库名
-    const [dbResult] = await db.query("SELECT DATABASE() as db_name");
-    const currentDB = dbResult[0].db_name;
+    console.log("正在测试数据库连接...");
+    const connection = await db.getConnection();
 
-    // 测试连接
-    const [testResult] = await db.query("SELECT 1 + 1 AS result");
+    // 测试查询
+    const [result] = await connection.query("SELECT 1 + 1 as sum");
+
+    connection.release();
 
     res.json({
+      status: "success",
       message: "数据库连接测试成功",
-      current_database: currentDB,
-      test_result: testResult[0].result,
+      test_result: result[0].sum,
     });
   } catch (error) {
-    console.error("数据库测试失败:", error);
-    res
-      .status(500)
-      .json({ error: "数据库连接测试失败", details: error.message });
+    console.error("数据库连接测试失败:", error);
+    res.status(500).json({
+      error: "数据库连接测试失败",
+      details: error.message,
+      code: error.code,
+      state: error.sqlState,
+    });
   }
 });
 

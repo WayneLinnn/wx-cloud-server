@@ -26,10 +26,12 @@ const pool = mysql.createPool({
 // 测试连接并创建数据库
 async function initializeDatabase() {
   try {
+    console.log("尝试连接数据库...");
     const connection = await pool.getConnection();
     console.log("数据库连接成功");
 
     // 创建数据库（如果不存在）
+    console.log("尝试创建数据库...");
     await connection.query("CREATE DATABASE IF NOT EXISTS bunblebee");
     console.log("数据库 bunblebee 创建成功或已存在");
 
@@ -38,6 +40,7 @@ async function initializeDatabase() {
     console.log("切换到 bunblebee 数据库");
 
     connection.release();
+    return true;
   } catch (err) {
     console.error("数据库初始化失败:", err);
     throw err;
