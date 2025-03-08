@@ -10,11 +10,15 @@ COPY package*.json ./
 # 安装依赖
 RUN npm install
 
-# 复制源代码
+# 复制源代码和环境变量文件
 COPY . .
 
 # 设置环境变量
 ENV PORT=80
+ENV DB_HOST=10.41.8.111
+ENV DB_USER=root
+ENV DB_PASSWORD=Linfeng19960110
+ENV DB_NAME=bunblebee
 
 # 暴露端口
 EXPOSE 80

@@ -1,12 +1,22 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const dotenv = require("dotenv");
 const db = require("./config/database");
 
-dotenv.config();
+// 使用绝对路径加载.env文件
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const port = process.env.PORT || 80;
+
+// 打印当前工作目录和环境变量
+console.log("Current working directory:", process.cwd());
+console.log("Environment variables:", {
+  DB_HOST: process.env.DB_HOST,
+  DB_NAME: process.env.DB_NAME,
+  PORT: process.env.PORT,
+});
 
 // 中间件
 app.use(cors());
