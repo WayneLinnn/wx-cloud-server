@@ -30,35 +30,98 @@ app.get("/", (req, res) => {
   res.json({ message: "服务器运行正常" });
 });
 
-// 测试数据库连接
-app.get("/test-db", async (req, res) => {
+// 检查数据库状态
+app.get("/check-database", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT 1 + 1 AS result");
+    // 检查当前数据库
+    const [rows] = await db.query("SELECT DATABASE() as current_database");
+    const currentDB = rows[0].current_database;
+
+    // 获取所有数据库列表
+    const [databases] = await db.query("SHOW DATABASES");
+
+    // 检查 bunblebee 数据库是否存在
+    const bunblebeeExists = databases.some((db) => db.Database === "bunblebee");
+
     res.json({
-      message: "数据库连接测试成功",
-      result: rows[0].result,
+      current_database: currentDB,
+      all_databases: databases.map((db) => db.Database),
+      bunblebee_exists: bunblebeeExists,
     });
   } catch (error) {
-    console.error("数据库测试失败:", error);
-    res.status(500).json({ error: "数据库连接测试失败" });
+    console.error("数据库检查失败:", error);
+    res.status(500).json({ error: "数据库检查失败", details: error.message });
   }
 });
 
-// 示例：创建用户表
-app.post("/init-db", async (req, res) => {
+// 创建数据库
+app.post("/create-database", async (req, res) => {
   try {
+    // 创建数据库（如果不存在）
+    await db.query("CREATE DATABASE IF NOT EXISTS bunblebee");
+
+    // 切换到新创建的数据库
+    await db.query("USE bunblebee");
+
+    res.json({ message: "数据库创建并切换成功" });
+  } catch (error) {
+    console.error("创建数据库失败:", error);
+    res.status(500).json({ error: "创建数据库失败", details: error.message });
+  }
+});
+
+// 测试数据库连接
+app.get("/test-db", async (req, res) => {
+  try {
+    // 获取当前数据库名
+    const [dbResult] = await db.query("SELECT DATABASE() as db_name");
+    const currentDB = dbResult[0].db_name;
+
+    // 测试连接
+    const [testResult] = await db.query("SELECT 1 + 1 AS result");
+
+    res.json({
+      message: "数据库连接测试成功",
+      current_database: currentDB,
+      test_result: testResult[0].result,
+    });
+  } catch (error) {
+    console.error("数据库测试失败:", error);
+    res
+      .status(500)
+      .json({ error: "数据库连接测试失败", details: error.message });
+  }
+});
+
+// 初始化所有数据表
+app.post("/init-tables", async (req, res) => {
+  try {
+    // 确保我们在正确的数据库中
+    await db.query("USE bunblebee");
+
+    // 创建用户表
     await db.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         openid VARCHAR(100) UNIQUE NOT NULL,
         nickname VARCHAR(100),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        avatar_url TEXT,
+        gender TINYINT,
+        country VARCHAR(50),
+        province VARCHAR(50),
+        city VARCHAR(50),
+        language VARCHAR(20),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    res.json({ message: "数据库初始化成功" });
+
+    // ... (其他表的创建代码保持不变)
+
+    res.json({ message: "所有数据表初始化成功" });
   } catch (error) {
-    console.error("数据库初始化失败:", error);
-    res.status(500).json({ error: "数据库初始化失败" });
+    console.error("创建数据表失败:", error);
+    res.status(500).json({ error: "创建数据表失败", details: error.message });
   }
 });
 
@@ -109,8 +172,10 @@ app.listen(port, "0.0.0.0", () => {
   console.log("可用路由:");
   console.log("- GET /");
   console.log("- GET /health");
+  console.log("- GET /check-database");
+  console.log("- POST /create-database");
   console.log("- GET /test-db");
-  console.log("- POST /init-db");
+  console.log("- POST /init-tables");
   console.log("- GET /users");
   console.log("- POST /users");
 });
