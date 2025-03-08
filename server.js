@@ -1,7 +1,7 @@
 const express = require("express");
-const mysql = require("mysql2");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const db = require("./config/database");
 
 dotenv.config();
 
@@ -18,23 +18,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// 数据库连接配置
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
-
-// 连接数据库
-db.connect((err) => {
-  if (err) {
-    console.error("数据库连接失败:", err);
-    return;
-  }
-  console.log("数据库连接成功");
-});
-
 // 健康检查路由
 app.get("/health", (req, res) => {
   console.log("健康检查请求");
@@ -47,15 +30,65 @@ app.get("/", (req, res) => {
   res.json({ message: "服务器运行正常" });
 });
 
-// 新增测试路由 - 用于验证自动部署
-app.get("/test-deploy", (req, res) => {
-  console.log("测试部署路由被访问");
-  res.json({
-    message: "自动部署测试成功！",
-    timestamp: new Date().toISOString(),
-    version: "1.0.2", // 更新版本号以验证新部署
-    deployTime: new Date().toISOString(),
-  });
+// 测试数据库连接
+app.get("/test-db", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT 1 + 1 AS result");
+    res.json({
+      message: "数据库连接测试成功",
+      result: rows[0].result,
+    });
+  } catch (error) {
+    console.error("数据库测试失败:", error);
+    res.status(500).json({ error: "数据库连接测试失败" });
+  }
+});
+
+// 示例：创建用户表
+app.post("/init-db", async (req, res) => {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        openid VARCHAR(100) UNIQUE NOT NULL,
+        nickname VARCHAR(100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    res.json({ message: "数据库初始化成功" });
+  } catch (error) {
+    console.error("数据库初始化失败:", error);
+    res.status(500).json({ error: "数据库初始化失败" });
+  }
+});
+
+// 示例：获取所有用户
+app.get("/users", async (req, res) => {
+  try {
+    const [users] = await db.query("SELECT * FROM users");
+    res.json(users);
+  } catch (error) {
+    console.error("获取用户列表失败:", error);
+    res.status(500).json({ error: "获取用户列表失败" });
+  }
+});
+
+// 示例：添加新用户
+app.post("/users", async (req, res) => {
+  const { openid, nickname } = req.body;
+  try {
+    const [result] = await db.query(
+      "INSERT INTO users (openid, nickname) VALUES (?, ?)",
+      [openid, nickname]
+    );
+    res.json({
+      message: "用户创建成功",
+      userId: result.insertId,
+    });
+  } catch (error) {
+    console.error("创建用户失败:", error);
+    res.status(500).json({ error: "创建用户失败" });
+  }
 });
 
 // 错误处理中间件
@@ -76,5 +109,8 @@ app.listen(port, "0.0.0.0", () => {
   console.log("可用路由:");
   console.log("- GET /");
   console.log("- GET /health");
-  console.log("- GET /test-deploy");
+  console.log("- GET /test-db");
+  console.log("- POST /init-db");
+  console.log("- GET /users");
+  console.log("- POST /users");
 });
