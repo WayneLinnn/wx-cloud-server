@@ -14,10 +14,10 @@ console.log("Database Config:", {
 });
 
 const pool = mysql.createPool({
-  host: "10.41.8.111", // 直接使用IP地址
-  user: "root",
+  host: "10.41.111.100", // 使用正确的内网地址
+  user: "bunblebee", // 使用你的账号
   password: "Linfeng19960110",
-  database: "bunblebee",
+  database: "mysql", // 先连接到默认的mysql数据库
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
