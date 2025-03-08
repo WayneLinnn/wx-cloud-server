@@ -13,8 +13,11 @@ RUN npm install
 # 复制源代码
 COPY . .
 
+# 设置环境变量
+ENV PORT=80
+
 # 暴露端口
 EXPOSE 80
 
 # 启动命令
-CMD ["npm", "start"] 
+CMD ["node", "server.js"] 
