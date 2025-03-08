@@ -14,15 +14,14 @@ console.log("Database Config:", {
 });
 
 const pool = mysql.createPool({
-  host: "10.41.111.100", // 使用正确的内网地址
-  user: "bunblebee", // 使用你的账号
-  password: "Linfeng19960110",
-  database: "mysql", // 先连接到默认的mysql数据库
+  host: "10.41.111.100", // 内网地址
+  port: 3306, // 端口号
+  user: "bunblebee", // 你创建的账号
+  password: "Linfeng19960110", // 账号密码
+  database: "bunblebee", // 数据库名称
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  port: 3306,
-  connectTimeout: 10000,
 });
 
 // 测试连接
