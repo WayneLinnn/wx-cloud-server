@@ -27,7 +27,7 @@ app.get("/health", (req, res) => {
 // 测试路由
 app.get("/", (req, res) => {
   console.log("根路径请求");
-  res.json({ message: "服务器运行正常" });
+  res.json({ message: "服务器运行正常啊" });
 });
 
 // 检查数据库状态
