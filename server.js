@@ -77,16 +77,38 @@ app.get("/check-database", async (req, res) => {
 // 创建数据库
 app.post("/create-database", async (req, res) => {
   try {
-    // 创建数据库（如果不存在）
-    await db.query("CREATE DATABASE IF NOT EXISTS bunblebee");
+    console.log("尝试创建数据库...");
+    const connection = await db.getConnection();
+
+    // 创建数据库
+    await connection.query(
+      "CREATE DATABASE IF NOT EXISTS bunblebee CHARACTER SET utf8 COLLATE utf8_general_ci"
+    );
+    console.log("数据库创建命令执行成功");
 
     // 切换到新创建的数据库
-    await db.query("USE bunblebee");
+    await connection.query("USE bunblebee");
+    console.log("切换到 bunblebee 数据库");
 
-    res.json({ message: "数据库创建并切换成功" });
+    // 获取所有数据库列表以验证
+    const [databases] = await connection.query("SHOW DATABASES");
+
+    connection.release();
+
+    res.json({
+      status: "success",
+      message: "数据库创建成功",
+      database_name: "bunblebee",
+      available_databases: databases.map((db) => db.Database),
+    });
   } catch (error) {
     console.error("创建数据库失败:", error);
-    res.status(500).json({ error: "创建数据库失败", details: error.message });
+    res.status(500).json({
+      error: "创建数据库失败",
+      details: error.message,
+      code: error.code,
+      state: error.sqlState,
+    });
   }
 });
 
