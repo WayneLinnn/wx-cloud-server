@@ -1,0 +1,9 @@
+<view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+  <view class="nav-content">
+    <view class="left-area" wx:if="{{showBack}}" bindtap="goBack">
+      <text class="back-icon">←</text>
+      <text class="back-text">返回</text>
+    </view>
+    <text class="title">{{title}}</text>
+  </view>
+</view> 

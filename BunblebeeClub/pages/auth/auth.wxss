@@ -1,0 +1,170 @@
+.auth-container {
+  padding: 40rpx;
+  min-height: 100vh;
+  background-color: #f8f8f8;
+}
+
+.logo-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 60rpx;
+  padding-top: 60rpx;
+}
+
+.logo {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 20rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.login-type-switch {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 60rpx;
+  background: #fff;
+  padding: 10rpx;
+  border-radius: 12rpx;
+}
+
+.switch-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+
+.switch-item.active {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.switch-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: #ffd700;
+  border-radius: 2rpx;
+}
+
+.wechat-login-area {
+  padding: 40rpx 0;
+}
+
+.wechat-btn,
+.phone-btn {
+  width: 100%;
+  height: 88rpx;
+  margin-bottom: 30rpx;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  border: none;
+}
+
+.wechat-btn {
+  background-color: #07c160;
+  color: #fff;
+}
+
+.phone-btn {
+  background-color: #fff;
+  color: #333;
+  border: 2rpx solid #ddd;
+}
+
+.wechat-icon,
+.phone-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
+}
+
+.phone-login-area {
+  padding: 40rpx 0;
+}
+
+.input-group {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx 30rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+}
+
+input {
+  flex: 1;
+  height: 44rpx;
+  font-size: 28rpx;
+}
+
+.code-btn {
+  min-width: 180rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  font-size: 24rpx;
+  color: #ffd700;
+  background: none;
+  padding: 0;
+  margin: 0;
+}
+
+.code-btn::after {
+  border: none;
+}
+
+.code-btn.disabled {
+  color: #999;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #ffd700;
+  color: #333;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 44rpx;
+  margin-top: 60rpx;
+  border: none;
+}
+
+.agreement {
+  position: fixed;
+  bottom: 40rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.agreement-text {
+  color: #999;
+}
+
+.agreement-link {
+  color: #ffd700;
+  display: inline;
+}

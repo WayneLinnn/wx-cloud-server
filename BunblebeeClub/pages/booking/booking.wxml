@@ -1,0 +1,63 @@
+<view class="container">
+  <!-- 成就概览 -->
+  <view class="achievement-overview">
+    <view class="overview-header">
+      <text class="total-achievements">已获得 {{unlockedCount}} 个成就</text>
+      <text class="total-exp">总经验值：{{totalExp}} EXP</text>
+    </view>
+    <view class="progress-bar">
+      <view class="progress" style="width: {{(unlockedCount / achievements.length) * 100}}%"></view>
+    </view>
+    <text class="progress-text">{{unlockedCount}}/{{achievements.length}}</text>
+  </view>
+
+  <!-- 成就分类 -->
+  <view class="category-bar">
+    <view class="category-item {{currentCategory === 'all' ? 'active' : ''}}" 
+          bindtap="switchCategory" 
+          data-category="all">
+      <text class="category-name">全部</text>
+      <text class="category-count">{{achievements.length}}</text>
+    </view>
+    <view class="category-item {{currentCategory === 'unlocked' ? 'active' : ''}}" 
+          bindtap="switchCategory" 
+          data-category="unlocked">
+      <text class="category-name">已获得</text>
+      <text class="category-count">{{unlockedCount}}</text>
+    </view>
+    <view class="category-item {{currentCategory === 'locked' ? 'active' : ''}}" 
+          bindtap="switchCategory" 
+          data-category="locked">
+      <text class="category-name">未获得</text>
+      <text class="category-count">{{achievements.length - unlockedCount}}</text>
+    </view>
+  </view>
+
+  <!-- 成就列表 -->
+  <view class="achievements-list">
+    <view class="achievement-item {{item.unlocked ? 'unlocked' : ''}}" 
+          wx:for="{{filteredAchievements}}" 
+          wx:key="id">
+      <view class="achievement-icon">
+        <text class="icon-placeholder">{{item.icon}}</text>
+      </view>
+      <view class="achievement-info">
+        <text class="achievement-name">{{item.name}}</text>
+        <text class="achievement-desc">{{item.description}}</text>
+        <view class="achievement-progress-bar">
+          <view class="progress" style="width: {{(item.currentValue / item.targetValue) * 100}}%"></view>
+        </view>
+        <view class="achievement-footer">
+          <text class="progress-text">{{item.currentValue}}/{{item.targetValue}}</text>
+          <text class="exp-reward">+{{item.expReward}} EXP</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 未登录提示 -->
+  <view class="login-tip" wx:if="{{!userInfo}}">
+    <text class="tip-text">登录后查看您的成就</text>
+    <button class="login-btn" bindtap="login">立即登录</button>
+  </view>
+</view> 

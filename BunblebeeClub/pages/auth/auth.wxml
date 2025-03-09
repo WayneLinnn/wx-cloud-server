@@ -1,0 +1,87 @@
+<view class="auth-container">
+  <view class="logo-area">
+    <image class="logo" src="/assets/images/logo.png" mode="aspectFit"></image>
+    <text class="title">大黄蜂足球俱乐部</text>
+  </view>
+
+  <view class="login-type-switch">
+    <view 
+      class="switch-item {{loginType === 'wechat' ? 'active' : ''}}" 
+      bindtap="switchLoginType" 
+      data-type="wechat"
+    >微信登录</view>
+    <view 
+      class="switch-item {{loginType === 'phone' ? 'active' : ''}}" 
+      bindtap="switchLoginType" 
+      data-type="phone"
+    >手机号登录</view>
+  </view>
+
+  <block wx:if="{{loginType === 'wechat'}}">
+    <view class="wechat-login-area">
+      <button 
+        class="wechat-btn" 
+        bindtap="handleWechatLogin"
+        loading="{{isLoading}}"
+      >
+        <image class="wechat-icon" src="/assets/icons/wechat.png" mode="aspectFit"></image>
+        微信一键登录
+      </button>
+      <button 
+        class="phone-btn" 
+        open-type="getPhoneNumber" 
+        bindgetphonenumber="getPhoneNumber"
+        loading="{{isLoading}}"
+      >
+        <image class="phone-icon" src="/assets/icons/phone.png" mode="aspectFit"></image>
+        获取微信手机号
+      </button>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="phone-login-area">
+      <view class="input-group">
+        <image class="input-icon" src="/assets/icons/phone.png" mode="aspectFit"></image>
+        <input 
+          type="number" 
+          placeholder="请输入手机号" 
+          value="{{phone}}"
+          bindinput="handlePhoneInput"
+          maxlength="11"
+        />
+      </view>
+
+      <view class="input-group">
+        <image class="input-icon" src="/assets/icons/verify.png" mode="aspectFit"></image>
+        <input 
+          type="number" 
+          placeholder="请输入验证码" 
+          value="{{verificationCode}}"
+          bindinput="handleCodeInput"
+          maxlength="6"
+        />
+        <button 
+          class="code-btn {{countdown > 0 ? 'disabled' : ''}}" 
+          bindtap="sendVerificationCode"
+          disabled="{{countdown > 0 || isLoading}}"
+        >
+          {{countdown > 0 ? countdown + '秒' : '获取验证码'}}
+        </button>
+      </view>
+
+      <button 
+        class="submit-btn" 
+        bindtap="handlePhoneLogin"
+        loading="{{isLoading}}"
+      >登录</button>
+    </view>
+  </block>
+
+  <view class="agreement">
+    <text class="agreement-text">登录即表示同意</text>
+    <navigator url="/pages/agreement/agreement" class="agreement-link">《用户协议》</navigator>
+    <text class="agreement-text">和</text>
+    <navigator url="/pages/privacy/privacy" class="agreement-link">《隐私政策》</navigator>
+  </view>
+</view> 

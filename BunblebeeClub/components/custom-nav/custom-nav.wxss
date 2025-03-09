@@ -1,0 +1,42 @@
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffd700;
+  z-index: 1000;
+}
+
+.nav-content {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: relative;
+}
+
+.left-area {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 16px;
+}
+
+.back-icon {
+  font-size: 20px;
+  color: #333;
+  margin-right: 4px;
+}
+
+.back-text {
+  font-size: 16px;
+  color: #333;
+}
+
+.title {
+  width: 100%;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 500;
+  color: #333;
+}

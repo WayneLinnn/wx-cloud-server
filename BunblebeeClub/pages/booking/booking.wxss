@@ -1,0 +1,464 @@
+.container {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+}
+
+/* 成就概览样式 */
+.achievement-overview {
+  background-color: #ffd700;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  text-align: center;
+}
+
+.overview-header {
+  margin-bottom: 20rpx;
+}
+
+.total-achievements {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.total-exp {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.progress-bar {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 20rpx;
+  height: 20rpx;
+  overflow: hidden;
+  margin-bottom: 8rpx;
+}
+
+.progress-bar .progress {
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 24rpx;
+  color: #333;
+}
+
+/* 分类栏样式 */
+.category-bar {
+  display: flex;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.category-item {
+  flex: 1;
+  text-align: center;
+  padding: 10rpx 0;
+  position: relative;
+}
+
+.category-item.active {
+  color: #ffd700;
+}
+
+.category-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: -10rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: #ffd700;
+  border-radius: 2rpx;
+}
+
+.category-name {
+  font-size: 28rpx;
+  color: #333;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.category-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 成就列表样式 */
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  opacity: 0.6;
+}
+
+.achievement-item.unlocked {
+  opacity: 1;
+}
+
+.achievement-icon {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #f5f5f5;
+  border-radius: 40rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 20rpx;
+}
+
+.icon-placeholder {
+  font-size: 32rpx;
+}
+
+.achievement-info {
+  flex: 1;
+}
+
+.achievement-name {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.achievement-desc {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.achievement-progress-bar {
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  height: 16rpx;
+  overflow: hidden;
+  margin-bottom: 8rpx;
+}
+
+.achievement-progress-bar .progress {
+  height: 100%;
+  background-color: #ffd700;
+  transition: width 0.3s ease;
+}
+
+.achievement-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-text {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.exp-reward {
+  font-size: 20rpx;
+  color: #ffd700;
+  font-weight: bold;
+}
+
+/* 未登录提示样式 */
+.login-tip {
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+.tip-text {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.login-btn {
+  display: inline-block;
+  background-color: #ffd700;
+  color: #333;
+  font-size: 28rpx;
+  padding: 0 60rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+}
+
+/* 日期选择器样式 */
+.date-picker {
+  display: flex;
+  padding: 20rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.date-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  margin-right: 20rpx;
+  border-radius: 12rpx;
+  background-color: #f5f5f5;
+}
+
+.date-item.active {
+  background-color: #ffd700;
+}
+
+.date-item .day {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.date-item.active .day,
+.date-item.active .date {
+  color: #333;
+  font-weight: bold;
+}
+
+.date-item .date {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 场地选择器样式 */
+.field-selector {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.field-item {
+  flex: 1;
+  background-color: #fff;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  text-align: center;
+  border: 2rpx solid transparent;
+}
+
+.field-item.active {
+  border-color: #ffd700;
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+.field-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.field-desc {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 时间段选择样式 */
+.time-slots {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 120rpx;
+}
+
+.time-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.time-slot:last-child {
+  border-bottom: none;
+}
+
+.time-slot.disabled {
+  opacity: 0.5;
+}
+
+.time-slot.selected {
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+.time {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.status {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.price {
+  font-size: 32rpx;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+/* 底部预订栏样式 */
+.booking-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.booking-info {
+  flex: 1;
+}
+
+.selected-count {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 4rpx;
+}
+
+.total-price {
+  display: flex;
+  align-items: baseline;
+  color: #333;
+  font-size: 28rpx;
+}
+
+.price-symbol {
+  font-size: 24rpx;
+  color: #ff6b6b;
+  margin-right: 4rpx;
+}
+
+.price-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.book-btn {
+  background-color: #ffd700;
+  color: #333;
+  font-size: 28rpx;
+  padding: 0 60rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  margin-left: 20rpx;
+}
+
+/* 弹窗样式 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 80%;
+  background-color: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999;
+  padding: 0 20rpx;
+}
+
+.modal-body {
+  padding: 30rpx;
+}
+
+.booking-detail {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.detail-label {
+  width: 160rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.detail-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.modal-footer {
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  border-top: 2rpx solid #f0f0f0;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666;
+  font-size: 28rpx;
+  padding: 0 40rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+}
+
+.confirm-btn {
+  background-color: #ffd700;
+  color: #333;
+  font-size: 28rpx;
+  padding: 0 40rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+}

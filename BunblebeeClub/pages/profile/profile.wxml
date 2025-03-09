@@ -1,0 +1,57 @@
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-info">
+      <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/default-avatar.png'}}"></image>
+      <view class="info-right">
+        <text class="nickname">{{userInfo.nickName || '未登录'}}</text>
+        <text class="level">Level {{userInfo.level || 1}}</text>
+      </view>
+    </view>
+    <view class="exp-bar">
+      <view class="exp-progress" style="width: {{(userInfo.exp / userInfo.nextLevelExp) * 100}}%"></view>
+      <text class="exp-text">{{userInfo.exp || 0}}/{{userInfo.nextLevelExp || 100}} EXP</text>
+    </view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="stats-section">
+    <view class="stat-item">
+      <text class="stat-value">{{userInfo.totalCourses || 0}}</text>
+      <text class="stat-label">已购课程</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{userInfo.completedCourses || 0}}</text>
+      <text class="stat-label">已完成</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{userInfo.totalBookings || 0}}</text>
+      <text class="stat-label">场地预订</text>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-item" bindtap="navigateToCourses">
+      <text class="menu-icon">📚</text>
+      <text class="menu-text">我的课程</text>
+      <text class="menu-arrow">></text>
+    </view>
+    <view class="menu-item" bindtap="navigateToBookings">
+      <text class="menu-icon">📅</text>
+      <text class="menu-text">我的预订</text>
+      <text class="menu-arrow">></text>
+    </view>
+    <view class="menu-item" bindtap="navigateToSettings">
+      <text class="menu-icon">⚙️</text>
+      <text class="menu-text">设置</text>
+      <text class="menu-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 未登录提示 -->
+  <view class="login-tip" wx:if="{{!userInfo}}">
+    <text class="tip-text">登录后查看更多信息</text>
+    <button class="login-btn" bindtap="login">立即登录</button>
+  </view>
+</view> 

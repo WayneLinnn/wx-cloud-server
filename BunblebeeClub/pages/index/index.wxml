@@ -2,6 +2,71 @@
 <navigation-bar title="Weixin" back="{{false}}" color="black" background="#FFF"></navigation-bar>
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
-    Weixin
+    <!-- 顶部轮播图 -->
+    <swiper class="banner" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}">
+      <swiper-item wx:for="{{banners}}" wx:key="id">
+        <view class="banner-item">Banner {{index + 1}}</view>
+      </swiper-item>
+    </swiper>
+
+    <!-- 新闻区域 -->
+    <view class="section news-section">
+      <view class="section-header">
+        <text class="section-title">俱乐部新闻</text>
+        <text class="section-more">更多 ></text>
+      </view>
+      <view class="news-list">
+        <view class="news-item" wx:for="{{news}}" wx:key="id">
+          <view class="news-content">
+            <text class="news-title">{{item.title || '新闻标题'}}</text>
+            <text class="news-date">{{item.date || '2024-03-08'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 预订场地按钮 -->
+    <view class="booking-button" bindtap="navigateToBooking">
+      <text class="booking-icon">⚽</text>
+      <view class="booking-text">
+        <text class="booking-title">场地预订</text>
+        <text class="booking-desc">点击预订足球场地</text>
+      </view>
+      <text class="booking-arrow">></text>
+    </view>
+
+    <!-- 比赛和教练信息区域 -->
+    <view class="info-row">
+      <!-- 比赛信息 -->
+      <view class="section matches-section">
+        <view class="section-header">
+          <text class="section-title">比赛信息</text>
+          <text class="section-more">更多 ></text>
+        </view>
+        <view class="matches-list">
+          <view class="match-item" wx:for="{{matches}}" wx:key="id">
+            <view class="match-content">
+              <text class="match-title">{{item.title || '比赛标题'}}</text>
+              <text class="match-time">{{item.time || '2024-03-08 14:00'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 教练团队 -->
+      <view class="section coaches-section">
+        <view class="section-header">
+          <text class="section-title">教练团队</text>
+          <text class="section-more">更多 ></text>
+        </view>
+        <view class="coaches-grid">
+          <view class="coach-item" wx:for="{{coaches}}" wx:key="id">
+            <view class="coach-avatar">教练头像</view>
+            <text class="coach-name">{{item.name || '教练姓名'}}</text>
+            <text class="coach-title">{{item.title || '职位'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
   </view>
 </scroll-view>
