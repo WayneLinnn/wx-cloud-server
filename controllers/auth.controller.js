@@ -3,6 +3,7 @@
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const moment = require("moment");
+const { Op } = require("sequelize");
 const { User, LoginRecord, VerificationCode } = require("../models");
 const config = require("../config/config");
 
