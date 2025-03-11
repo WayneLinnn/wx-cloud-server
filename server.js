@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const dotenv = require("dotenv");
-const { pool, initializeDatabase } = require("./config/database");
+const db = require("./config/database");
 const { sequelize } = require("./models");
 const authRoutes = require("./routes/auth.routes");
 
@@ -18,9 +18,6 @@ console.log("Environment variables:", {
   DB_HOST: process.env.DB_HOST,
   DB_NAME: process.env.DB_NAME,
   PORT: process.env.PORT,
-  WX_APP_ID: process.env.WX_APP_ID,
-  WX_APP_SECRET: process.env.WX_APP_SECRET,
-  JWT_SECRET: process.env.JWT_SECRET,
 });
 
 // 中间件
@@ -49,7 +46,7 @@ app.get("/", (req, res) => {
 app.get("/check-database", async (req, res) => {
   try {
     console.log("正在检查数据库状态...");
-    const connection = await pool.getConnection();
+    const connection = await db.getConnection();
 
     // 获取当前数据库
     const [dbResult] = await connection.query(
@@ -83,7 +80,7 @@ app.get("/check-database", async (req, res) => {
 app.post("/create-database", async (req, res) => {
   try {
     console.log("尝试创建数据库...");
-    const connection = await pool.getConnection();
+    const connection = await db.getConnection();
 
     // 创建数据库
     await connection.query(
@@ -121,7 +118,7 @@ app.post("/create-database", async (req, res) => {
 app.get("/test-db", async (req, res) => {
   try {
     console.log("正在测试数据库连接...");
-    const connection = await pool.getConnection();
+    const connection = await db.getConnection();
 
     // 测试查询
     const [result] = await connection.query("SELECT 1 + 1 as sum");
@@ -148,10 +145,10 @@ app.get("/test-db", async (req, res) => {
 app.post("/init-tables", async (req, res) => {
   try {
     // 确保我们在正确的数据库中
-    await pool.getConnection();
+    await db.query("USE bunblebee");
 
     // 创建用户表
-    await pool.query(`
+    await db.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         openid VARCHAR(100) UNIQUE NOT NULL,
@@ -179,7 +176,7 @@ app.post("/init-tables", async (req, res) => {
 // 示例：获取所有用户
 app.get("/users", async (req, res) => {
   try {
-    const [users] = await pool.query("SELECT * FROM users");
+    const [users] = await db.query("SELECT * FROM users");
     res.json(users);
   } catch (error) {
     console.error("获取用户列表失败:", error);
@@ -191,7 +188,7 @@ app.get("/users", async (req, res) => {
 app.post("/users", async (req, res) => {
   const { openid, nickname } = req.body;
   try {
-    const [result] = await pool.query(
+    const [result] = await db.query(
       "INSERT INTO users (openid, nickname) VALUES (?, ?)",
       [openid, nickname]
     );
@@ -227,77 +224,26 @@ app.use((req, res) => {
   });
 });
 
-// 启动服务器
-async function startServer() {
-  let retries = 5;
-  while (retries > 0) {
-    try {
-      // 打印环境变量（不包含敏感信息）
-      console.log("启动服务器，环境变量：", {
-        NODE_ENV: process.env.NODE_ENV,
-        PORT: process.env.PORT,
-        DB_HOST: process.env.DB_HOST,
-        DB_NAME: process.env.DB_NAME,
-        WX_APP_ID: process.env.WX_APP_ID,
-      });
+// 启动服务器，监听所有网络接口
+app.listen(port, "0.0.0.0", () => {
+  console.log(`服务器运行在端口 ${port}`);
+  console.log("可用路由:");
+  console.log("- GET /");
+  console.log("- GET /health");
+  console.log("- GET /check-database");
+  console.log("- POST /create-database");
+  console.log("- GET /test-db");
+  console.log("- POST /init-tables");
+  console.log("- GET /users");
+  console.log("- POST /users");
 
-      // 初始化数据库
-      console.log("正在初始化数据库...");
-      await initializeDatabase();
-      console.log("数据库初始化完成");
-
-      // 测试 Sequelize 连接
-      console.log("正在测试 Sequelize 连接...");
-      await sequelize.authenticate();
-      console.log("Sequelize 连接成功");
-
-      // 同步数据库表结构
-      console.log("正在同步数据库表结构...");
-      await sequelize.sync({ alter: true });
-      console.log("数据库表同步完成");
-
-      // 启动服务器
-      app.listen(port, "0.0.0.0", () => {
-        console.log(`服务器运行在端口 ${port}`);
-        console.log("可用路由:");
-        console.log("- GET /");
-        console.log("- GET /health");
-        console.log("- GET /check-database");
-        console.log("- POST /create-database");
-        console.log("- GET /test-db");
-        console.log("- POST /init-tables");
-        console.log("- GET /users");
-        console.log("- POST /users");
-      });
-
-      // 启动成功，跳出重试循环
-      break;
-    } catch (error) {
-      console.error(`服务器启动失败 (剩余重试次数: ${retries - 1}):`, error);
-      if (retries > 1) {
-        console.log("等待 5 秒后重试...");
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        retries--;
-      } else {
-        console.error("服务器启动失败，已达到最大重试次数");
-        process.exit(1);
-      }
-    }
-  }
-}
-
-// 优雅关闭
-process.on("SIGTERM", async () => {
-  console.log("收到 SIGTERM 信号，准备关闭服务器...");
-  try {
-    await sequelize.close();
-    console.log("数据库连接已关闭");
-    process.exit(0);
-  } catch (error) {
-    console.error("关闭服务器时出错:", error);
-    process.exit(1);
-  }
+  // 测试数据库连接
+  sequelize
+    .authenticate()
+    .then(() => {
+      console.log("数据库连接成功");
+    })
+    .catch((err) => {
+      console.error("数据库连接失败:", err);
+    });
 });
-
-// 启动服务器
-startServer();

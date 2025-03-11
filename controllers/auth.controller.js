@@ -12,10 +12,8 @@ class AuthController {
   async wxLogin(req, res) {
     try {
       const { code, encryptedData, iv } = req.body;
-      console.log("微信登录请求参数:", { code, encryptedData, iv });
 
       // 获取微信openid和session_key
-      console.log("正在请求微信接口...");
       const wxResponse = await axios.get(
         "https://api.weixin.qq.com/sns/jscode2session",
         {
@@ -27,27 +25,16 @@ class AuthController {
           },
         }
       );
-      console.log("微信接口响应:", wxResponse.data);
 
       const { openid, session_key } = wxResponse.data;
-      if (!openid) {
-        console.error("未获取到openid:", wxResponse.data);
-        return res.status(400).json({
-          success: false,
-          message: "微信登录失败",
-          error: wxResponse.data.errmsg || "未获取到openid",
-        });
-      }
 
       // 查找或创建用户
-      console.log("正在查找或创建用户...");
       let [user, created] = await User.findOrCreate({
         where: { openid },
         defaults: {
           status: 1,
         },
       });
-      console.log("用户信息:", { user: user.toJSON(), created });
 
       // 解密手机号（如果有）
       if (encryptedData && iv) {
@@ -60,7 +47,6 @@ class AuthController {
       // 更新登录时间
       user.last_login = new Date();
       await user.save();
-      console.log("已更新登录时间");
 
       // 记录登录
       await LoginRecord.create({
@@ -68,7 +54,6 @@ class AuthController {
         login_type: "wechat",
         ip_address: req.ip,
       });
-      console.log("已记录登录信息");
 
       // 生成token
       const token = jwt.sign(
@@ -76,7 +61,6 @@ class AuthController {
         config.jwt.secret,
         { expiresIn: config.jwt.expiresIn }
       );
-      console.log("已生成token");
 
       res.json({
         success: true,
@@ -94,11 +78,6 @@ class AuthController {
       });
     } catch (error) {
       console.error("微信登录失败:", error);
-      console.error("错误详情:", {
-        message: error.message,
-        stack: error.stack,
-        response: error.response?.data,
-      });
       res.status(500).json({
         success: false,
         message: "登录失败",
