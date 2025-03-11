@@ -47,6 +47,11 @@
       <text class="menu-text">设置</text>
       <text class="menu-arrow">></text>
     </view>
+    <view class="menu-item" bindtap="navigateToTest">
+      <text class="menu-icon">🔧</text>
+      <text class="menu-text">功能测试</text>
+      <text class="menu-arrow">></text>
+    </view>
   </view>
 
   <!-- 未登录提示 -->

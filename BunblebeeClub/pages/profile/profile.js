@@ -139,6 +139,12 @@ Page({
     });
   },
 
+  navigateToTest() {
+    wx.navigateTo({
+      url: "/pages/test/test",
+    });
+  },
+
   // 检查并更新成就
   checkAchievements(stats) {
     const achievements = this.data.achievements.map((achievement) => {

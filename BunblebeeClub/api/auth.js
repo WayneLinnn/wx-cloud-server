@@ -1,7 +1,8 @@
 const { request } = require("../utils/auth");
 
 // API基础URL
-const BASE_URL = "http://your-api-domain.com/api"; // 需要替换为实际的API地址
+const BASE_URL =
+  "https://express-t27b-142595-4-1344851180.sh.run.tcloudbase.com/api";
 
 // 微信登录
 const wxLogin = async (code, encryptedData, iv) => {
