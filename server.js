@@ -3,6 +3,8 @@ const cors = require("cors");
 const path = require("path");
 const dotenv = require("dotenv");
 const db = require("./config/database");
+const { sequelize } = require("./models");
+const authRoutes = require("./routes/auth.routes");
 
 // 使用绝对路径加载.env文件
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -200,10 +202,17 @@ app.post("/users", async (req, res) => {
   }
 });
 
+// 路由
+app.use("/api/auth", authRoutes);
+
 // 错误处理中间件
 app.use((err, req, res, next) => {
   console.error("服务器错误:", err);
-  res.status(500).json({ error: "服务器内部错误" });
+  res.status(500).json({
+    success: false,
+    message: "服务器内部错误",
+    error: err.message,
+  });
 });
 
 // 404处理
@@ -224,4 +233,5 @@ app.listen(port, "0.0.0.0", () => {
   console.log("- POST /init-tables");
   console.log("- GET /users");
   console.log("- POST /users");
+  console.log("- POST /api/auth");
 });
