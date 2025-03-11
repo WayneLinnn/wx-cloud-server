@@ -1,40 +1,61 @@
-"use strict";
-const { Model } = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
   class User extends Model {
     static associate(models) {
-      // 定义关联关系
-      User.hasMany(models.LoginRecord, { foreignKey: "user_id" });
+      // define associations here
+      User.hasMany(models.LoginRecord, {
+        foreignKey: "userId",
+        as: "loginRecords",
+      });
+      User.hasMany(models.VerificationCode, {
+        foreignKey: "userId",
+        as: "verificationCodes",
+      });
     }
   }
 
   User.init(
     {
-      openid: {
-        type: DataTypes.STRING(100),
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      openId: {
+        type: DataTypes.STRING,
         unique: true,
         allowNull: true,
       },
-      phone: {
-        type: DataTypes.STRING(20),
+      unionId: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: true,
+      },
+      phoneNumber: {
+        type: DataTypes.STRING,
         unique: true,
         allowNull: true,
       },
       nickname: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING,
         allowNull: true,
       },
-      avatar_url: {
-        type: DataTypes.TEXT,
+      avatarUrl: {
+        type: DataTypes.STRING,
         allowNull: true,
+      },
+      gender: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 0, // 0: unknown, 1: male, 2: female
       },
       status: {
-        type: DataTypes.TINYINT,
-        defaultValue: 1,
-        comment: "1: 正常, 0: 禁用",
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1, // 1: active, 0: inactive
       },
-      last_login: {
+      lastLoginAt: {
         type: DataTypes.DATE,
         allowNull: true,
       },
@@ -43,8 +64,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "User",
       tableName: "users",
-      underscored: true, // 使用下划线命名
-      timestamps: true, // 启用时间戳
+      timestamps: true, // Enables createdAt and updatedAt
     }
   );
 
