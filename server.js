@@ -18,6 +18,9 @@ console.log("Environment variables:", {
   DB_HOST: process.env.DB_HOST,
   DB_NAME: process.env.DB_NAME,
   PORT: process.env.PORT,
+  WX_APP_ID: process.env.WX_APP_ID,
+  WX_APP_SECRET: process.env.WX_APP_SECRET,
+  JWT_SECRET: process.env.JWT_SECRET,
 });
 
 // 中间件
@@ -225,7 +228,7 @@ app.use((req, res) => {
 });
 
 // 启动服务器，监听所有网络接口
-app.listen(port, "0.0.0.0", () => {
+app.listen(port, "0.0.0.0", async () => {
   console.log(`服务器运行在端口 ${port}`);
   console.log("可用路由:");
   console.log("- GET /");
@@ -237,13 +240,15 @@ app.listen(port, "0.0.0.0", () => {
   console.log("- GET /users");
   console.log("- POST /users");
 
-  // 测试数据库连接
-  sequelize
-    .authenticate()
-    .then(() => {
-      console.log("数据库连接成功");
-    })
-    .catch((err) => {
-      console.error("数据库连接失败:", err);
-    });
+  try {
+    // 测试数据库连接
+    await sequelize.authenticate();
+    console.log("数据库连接成功");
+
+    // 同步数据库表结构
+    await sequelize.sync({ alter: true });
+    console.log("数据库表同步完成");
+  } catch (err) {
+    console.error("数据库连接或同步失败:", err);
+  }
 });
