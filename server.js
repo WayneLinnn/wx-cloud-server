@@ -229,40 +229,75 @@ app.use((req, res) => {
 
 // 启动服务器
 async function startServer() {
-  try {
-    // 初始化数据库
-    console.log("正在初始化数据库...");
-    await initializeDatabase();
-    console.log("数据库初始化完成");
+  let retries = 5;
+  while (retries > 0) {
+    try {
+      // 打印环境变量（不包含敏感信息）
+      console.log("启动服务器，环境变量：", {
+        NODE_ENV: process.env.NODE_ENV,
+        PORT: process.env.PORT,
+        DB_HOST: process.env.DB_HOST,
+        DB_NAME: process.env.DB_NAME,
+        WX_APP_ID: process.env.WX_APP_ID,
+      });
 
-    // 测试 Sequelize 连接
-    console.log("正在测试 Sequelize 连接...");
-    await sequelize.authenticate();
-    console.log("Sequelize 连接成功");
+      // 初始化数据库
+      console.log("正在初始化数据库...");
+      await initializeDatabase();
+      console.log("数据库初始化完成");
 
-    // 同步数据库表结构
-    console.log("正在同步数据库表结构...");
-    await sequelize.sync({ alter: true });
-    console.log("数据库表同步完成");
+      // 测试 Sequelize 连接
+      console.log("正在测试 Sequelize 连接...");
+      await sequelize.authenticate();
+      console.log("Sequelize 连接成功");
 
-    // 启动服务器
-    app.listen(port, "0.0.0.0", () => {
-      console.log(`服务器运行在端口 ${port}`);
-      console.log("可用路由:");
-      console.log("- GET /");
-      console.log("- GET /health");
-      console.log("- GET /check-database");
-      console.log("- POST /create-database");
-      console.log("- GET /test-db");
-      console.log("- POST /init-tables");
-      console.log("- GET /users");
-      console.log("- POST /users");
-    });
-  } catch (error) {
-    console.error("服务器启动失败:", error);
-    process.exit(1);
+      // 同步数据库表结构
+      console.log("正在同步数据库表结构...");
+      await sequelize.sync({ alter: true });
+      console.log("数据库表同步完成");
+
+      // 启动服务器
+      app.listen(port, "0.0.0.0", () => {
+        console.log(`服务器运行在端口 ${port}`);
+        console.log("可用路由:");
+        console.log("- GET /");
+        console.log("- GET /health");
+        console.log("- GET /check-database");
+        console.log("- POST /create-database");
+        console.log("- GET /test-db");
+        console.log("- POST /init-tables");
+        console.log("- GET /users");
+        console.log("- POST /users");
+      });
+
+      // 启动成功，跳出重试循环
+      break;
+    } catch (error) {
+      console.error(`服务器启动失败 (剩余重试次数: ${retries - 1}):`, error);
+      if (retries > 1) {
+        console.log("等待 5 秒后重试...");
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        retries--;
+      } else {
+        console.error("服务器启动失败，已达到最大重试次数");
+        process.exit(1);
+      }
+    }
   }
 }
+
+// 优雅关闭
+process.on("SIGTERM", async () => {
+  console.log("收到 SIGTERM 信号，准备关闭服务器...");
+  try {
+    await sequelize.close();
+    console.log("数据库连接已关闭");
+    process.exit(0);
+  } catch (error) {
+    console.error("关闭服务器时出错:", error);
+    process.exit(1);
+  }
+});
 
 // 启动服务器
 startServer();
