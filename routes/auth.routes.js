@@ -8,6 +8,12 @@ const authMiddleware = require("../middlewares/auth.middleware");
 // 微信登录
 router.post("/wx-login", authController.wxLogin);
 
+// 获取用户信息（需要登录）
+router.get("/user-info", authMiddleware, authController.getUserInfo);
+
+// 更新用户信息（需要登录）
+router.post("/update-user", authMiddleware, authController.updateUserInfo);
+
 // 发送验证码
 router.post("/send-code", authController.sendVerificationCode);
 

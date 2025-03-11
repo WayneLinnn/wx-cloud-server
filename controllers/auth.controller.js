@@ -3,7 +3,6 @@
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const moment = require("moment");
-const { Op } = require("sequelize");
 const { User, LoginRecord, VerificationCode } = require("../models");
 const config = require("../config/config");
 
@@ -11,24 +10,44 @@ class AuthController {
   // 微信登录
   async wxLogin(req, res) {
     try {
-      const { code, encryptedData, iv } = req.body;
+      const { code } = req.body;
+      console.log("收到微信登录请求，code:", code);
+
+      if (!code) {
+        return res.status(400).json({
+          success: false,
+          message: "缺少code参数",
+        });
+      }
 
       // 获取微信openid和session_key
+      console.log("正在请求微信接口...");
       const wxResponse = await axios.get(
         "https://api.weixin.qq.com/sns/jscode2session",
         {
           params: {
-            appid: config.wx.appId,
-            secret: config.wx.appSecret,
+            appid: process.env.WX_APP_ID,
+            secret: process.env.WX_APP_SECRET,
             js_code: code,
             grant_type: "authorization_code",
           },
         }
       );
 
+      console.log("微信接口返回:", wxResponse.data);
+
+      if (wxResponse.data.errcode) {
+        return res.status(400).json({
+          success: false,
+          message: "微信登录失败",
+          error: wxResponse.data.errmsg,
+        });
+      }
+
       const { openid, session_key } = wxResponse.data;
 
       // 查找或创建用户
+      console.log("查找或创建用户, openid:", openid);
       let [user, created] = await User.findOrCreate({
         where: { openid },
         defaults: {
@@ -36,13 +55,7 @@ class AuthController {
         },
       });
 
-      // 解密手机号（如果有）
-      if (encryptedData && iv) {
-        // TODO: 实现微信手机号解密逻辑
-        // const phoneInfo = decryptWxData(encryptedData, session_key, iv);
-        // user.phone = phoneInfo.phoneNumber;
-        // await user.save();
-      }
+      console.log(created ? "创建新用户" : "找到已存在用户");
 
       // 更新登录时间
       user.last_login = new Date();
@@ -58,8 +71,8 @@ class AuthController {
       // 生成token
       const token = jwt.sign(
         { id: user.id, openid: user.openid },
-        config.jwt.secret,
-        { expiresIn: config.jwt.expiresIn }
+        process.env.JWT_SECRET || "bunblebee-secret-key",
+        { expiresIn: "7d" }
       );
 
       res.json({
@@ -213,6 +226,64 @@ class AuthController {
       res.status(500).json({
         success: false,
         message: "退出失败",
+        error: error.message,
+      });
+    }
+  }
+
+  // 获取用户信息
+  async getUserInfo(req, res) {
+    try {
+      const user = req.user;
+      res.json({
+        success: true,
+        data: {
+          id: user.id,
+          openid: user.openid,
+          phone: user.phone,
+          nickname: user.nickname,
+          avatar_url: user.avatar_url,
+          status: user.status,
+        },
+      });
+    } catch (error) {
+      console.error("获取用户信息失败:", error);
+      res.status(500).json({
+        success: false,
+        message: "获取用户信息失败",
+        error: error.message,
+      });
+    }
+  }
+
+  // 更新用户信息
+  async updateUserInfo(req, res) {
+    try {
+      const { nickname, avatar_url } = req.body;
+      const user = req.user;
+
+      if (nickname) user.nickname = nickname;
+      if (avatar_url) user.avatar_url = avatar_url;
+
+      await user.save();
+
+      res.json({
+        success: true,
+        message: "用户信息更新成功",
+        data: {
+          id: user.id,
+          openid: user.openid,
+          phone: user.phone,
+          nickname: user.nickname,
+          avatar_url: user.avatar_url,
+          status: user.status,
+        },
+      });
+    } catch (error) {
+      console.error("更新用户信息失败:", error);
+      res.status(500).json({
+        success: false,
+        message: "更新用户信息失败",
         error: error.message,
       });
     }
