@@ -208,25 +208,53 @@ app.post("/users", async (req, res) => {
 
 // 错误处理中间件
 app.use((err, req, res, next) => {
-  console.error("服务器错误:", err);
-  res.status(500).json({ error: "服务器内部错误" });
+  console.error("服务器错误:", {
+    message: err.message,
+    stack: err.stack,
+    code: err.code,
+    path: req.path,
+    method: req.method,
+  });
+  res.status(500).json({
+    error: "服务器内部错误",
+    message: err.message,
+    path: req.path,
+  });
 });
 
 // 404处理
 app.use((req, res) => {
-  console.log(`404 - 未找到路径: ${req.path}`);
-  res.status(404).json({ error: "路径不存在" });
+  const message = `404 - 未找到路径: ${req.path}`;
+  console.log(message);
+  res.status(404).json({
+    error: "路径不存在",
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // 数据库初始化和服务器启动
 async function startServer() {
   try {
+    // 打印环境信息
+    console.log("Starting server with configuration:", {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: port,
+      DB_HOST: process.env.MYSQL_ADDRESS || process.env.DB_HOST,
+      DB_NAME: process.env.DB_NAME,
+    });
+
+    // 初始化数据库
     await initDatabase();
     console.log("Database initialized successfully");
 
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-      console.log("可用路由:");
+    // 启动服务器
+    app.listen(port, "0.0.0.0", () => {
+      console.log(
+        `Server is running on port ${port} (${process.env.NODE_ENV} mode)`
+      );
+      console.log("Available routes:");
       console.log("- GET /");
       console.log("- GET /health");
       console.log("- GET /check-database");
@@ -237,7 +265,11 @@ async function startServer() {
       console.log("- POST /users");
     });
   } catch (error) {
-    console.error("Failed to start server:", error);
+    console.error("Failed to start server:", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+    });
     process.exit(1);
   }
 }
