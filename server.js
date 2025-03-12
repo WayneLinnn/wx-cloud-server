@@ -3,6 +3,8 @@ const cors = require("cors");
 const path = require("path");
 const dotenv = require("dotenv");
 const db = require("./config/database");
+const initDatabase = require("./utils/initDatabase");
+const authRoutes = require("./routes/auth");
 
 // 使用绝对路径加载.env文件
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -21,12 +23,16 @@ console.log("Environment variables:", {
 // 中间件
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 添加请求日志中间件
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
+
+// 路由
+app.use("/api/auth", authRoutes);
 
 // 健康检查路由
 app.get("/health", (req, res) => {
@@ -212,16 +218,28 @@ app.use((req, res) => {
   res.status(404).json({ error: "路径不存在" });
 });
 
-// 启动服务器，监听所有网络接口
-app.listen(port, "0.0.0.0", () => {
-  console.log(`服务器运行在端口 ${port}`);
-  console.log("可用路由:");
-  console.log("- GET /");
-  console.log("- GET /health");
-  console.log("- GET /check-database");
-  console.log("- POST /create-database");
-  console.log("- GET /test-db");
-  console.log("- POST /init-tables");
-  console.log("- GET /users");
-  console.log("- POST /users");
-});
+// 数据库初始化和服务器启动
+async function startServer() {
+  try {
+    await initDatabase();
+    console.log("Database initialized successfully");
+
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+      console.log("可用路由:");
+      console.log("- GET /");
+      console.log("- GET /health");
+      console.log("- GET /check-database");
+      console.log("- POST /create-database");
+      console.log("- GET /test-db");
+      console.log("- POST /init-tables");
+      console.log("- GET /users");
+      console.log("- POST /users");
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+}
+
+startServer();

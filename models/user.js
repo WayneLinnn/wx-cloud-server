@@ -1,5 +1,3 @@
-"use strict";
-
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
@@ -20,12 +18,8 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
       },
       openid: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(64),
         unique: true,
-        allowNull: true,
-      },
-      session_key: {
-        type: DataTypes.STRING(100),
         allowNull: true,
       },
       phone: {
@@ -34,29 +28,23 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       nickname: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(50),
         allowNull: true,
       },
       avatar_url: {
-        type: DataTypes.STRING(500),
+        type: DataTypes.STRING(255),
         allowNull: true,
       },
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
-      last_login_at: {
+      last_login: {
         type: DataTypes.DATE,
         allowNull: true,
       },
-      login_type: {
-        type: DataTypes.ENUM("wechat", "phone"),
-        allowNull: false,
-        defaultValue: "wechat",
-      },
       status: {
-        type: DataTypes.ENUM("active", "inactive", "blocked"),
-        allowNull: false,
+        type: DataTypes.ENUM("active", "inactive", "banned"),
         defaultValue: "active",
       },
     },
@@ -64,7 +52,6 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "User",
       tableName: "users",
-      underscored: true,
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
