@@ -1,16 +1,13 @@
-const { Model, DataTypes } = require("sequelize");
+"use strict";
 
-module.exports = (sequelize) => {
+const { Model } = require("sequelize");
+
+module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // define associations here
       User.hasMany(models.LoginRecord, {
-        foreignKey: "userId",
+        foreignKey: "user_id",
         as: "loginRecords",
-      });
-      User.hasMany(models.VerificationCode, {
-        foreignKey: "userId",
-        as: "verificationCodes",
       });
     }
   }
@@ -22,49 +19,55 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      openId: {
-        type: DataTypes.STRING,
+      openid: {
+        type: DataTypes.STRING(100),
         unique: true,
         allowNull: true,
       },
-      unionId: {
-        type: DataTypes.STRING,
-        unique: true,
+      session_key: {
+        type: DataTypes.STRING(100),
         allowNull: true,
       },
-      phoneNumber: {
-        type: DataTypes.STRING,
+      phone: {
+        type: DataTypes.STRING(20),
         unique: true,
         allowNull: true,
       },
       nickname: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         allowNull: true,
       },
-      avatarUrl: {
-        type: DataTypes.STRING,
+      avatar_url: {
+        type: DataTypes.STRING(500),
         allowNull: true,
       },
-      gender: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: 0, // 0: unknown, 1: male, 2: female
+      created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
       },
-      status: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 1, // 1: active, 0: inactive
-      },
-      lastLoginAt: {
+      last_login_at: {
         type: DataTypes.DATE,
         allowNull: true,
+      },
+      login_type: {
+        type: DataTypes.ENUM("wechat", "phone"),
+        allowNull: false,
+        defaultValue: "wechat",
+      },
+      status: {
+        type: DataTypes.ENUM("active", "inactive", "blocked"),
+        allowNull: false,
+        defaultValue: "active",
       },
     },
     {
       sequelize,
       modelName: "User",
       tableName: "users",
-      timestamps: true, // Enables createdAt and updatedAt
+      underscored: true,
+      timestamps: true,
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     }
   );
 

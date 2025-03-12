@@ -1,196 +1,308 @@
-const authApi = require("../../api/auth");
-const { setToken, setUserInfo } = require("../../utils/auth");
-
 Page({
   data: {
-    loginType: "wechat", // 'wechat' 或 'phone'
+    authType: "login", // login 或 register
     phone: "",
-    verificationCode: "",
-    countdown: 0,
-    isLoading: false,
+    code: "",
+    name: "",
+    age: "",
+    agreed: false,
+    codeSent: false,
+    countdown: 60,
   },
 
-  // 切换登录方式
-  switchLoginType(e) {
+  // 切换登录/注册标签
+  switchTab(e) {
+    const type = e.currentTarget.dataset.type;
     this.setData({
-      loginType: e.currentTarget.dataset.type,
+      authType: type,
+      phone: "",
+      code: "",
+      name: "",
+      age: "",
+      codeSent: false,
     });
   },
 
-  // 处理手机号输入
-  handlePhoneInput(e) {
+  // 输入手机号
+  onPhoneInput(e) {
     this.setData({
       phone: e.detail.value,
     });
   },
 
-  // 处理验证码输入
-  handleCodeInput(e) {
+  // 输入验证码
+  onCodeInput(e) {
     this.setData({
-      verificationCode: e.detail.value,
+      code: e.detail.value,
+    });
+  },
+
+  // 输入姓名
+  onNameInput(e) {
+    this.setData({
+      name: e.detail.value,
+    });
+  },
+
+  // 输入年龄
+  onAgeInput(e) {
+    this.setData({
+      age: e.detail.value,
+    });
+  },
+
+  // 同意用户协议
+  onAgreementChange(e) {
+    this.setData({
+      agreed: e.detail.value.length > 0,
+    });
+  },
+
+  // 显示用户协议
+  showAgreement() {
+    wx.navigateTo({
+      url: "/pages/agreement/agreement",
     });
   },
 
   // 发送验证码
-  async sendVerificationCode() {
-    if (this.data.countdown > 0) return;
+  async sendCode() {
+    if (!this.validatePhone()) return;
 
-    const phone = this.data.phone.trim();
-    if (!phone || !/^1\d{10}$/.test(phone)) {
+    try {
+      wx.showLoading({
+        title: "发送中...",
+      });
+
+      // TODO: 调用发送验证码API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      wx.hideLoading();
+      wx.showToast({
+        title: "发送成功",
+        icon: "success",
+      });
+
+      this.setData({
+        codeSent: true,
+      });
+
+      this.startCountdown();
+    } catch (error) {
+      wx.hideLoading();
+      wx.showToast({
+        title: "发送失败",
+        icon: "error",
+      });
+    }
+  },
+
+  // 开始倒计时
+  startCountdown() {
+    let countdown = 60;
+    const timer = setInterval(() => {
+      countdown--;
+      if (countdown <= 0) {
+        clearInterval(timer);
+        this.setData({
+          codeSent: false,
+          countdown: 60,
+        });
+      } else {
+        this.setData({
+          countdown,
+        });
+      }
+    }, 1000);
+  },
+
+  // 验证手机号
+  validatePhone() {
+    const phoneReg = /^1[3-9]\d{9}$/;
+    if (!phoneReg.test(this.data.phone)) {
       wx.showToast({
         title: "请输入正确的手机号",
         icon: "none",
       });
-      return;
+      return false;
     }
+    return true;
+  },
 
-    try {
-      this.setData({ isLoading: true });
-      await authApi.sendVerificationCode(phone);
-
-      // 开始倒计时
-      this.setData({ countdown: 60 });
-      const timer = setInterval(() => {
-        if (this.data.countdown <= 1) {
-          clearInterval(timer);
-        }
-        this.setData({
-          countdown: this.data.countdown - 1,
-        });
-      }, 1000);
-
+  // 验证验证码
+  validateCode() {
+    if (this.data.code.length !== 6) {
       wx.showToast({
-        title: "验证码已发送",
-        icon: "success",
-      });
-    } catch (error) {
-      wx.showToast({
-        title: error.message || "发送失败",
+        title: "请输入6位验证码",
         icon: "none",
       });
-    } finally {
-      this.setData({ isLoading: false });
+      return false;
+    }
+    return true;
+  },
+
+  // 验证注册信息
+  validateRegister() {
+    if (!this.data.name) {
+      wx.showToast({
+        title: "请输入姓名",
+        icon: "none",
+      });
+      return false;
+    }
+    if (!this.data.age) {
+      wx.showToast({
+        title: "请输入年龄",
+        icon: "none",
+      });
+      return false;
+    }
+    return true;
+  },
+
+  // 验证用户协议
+  validateAgreement() {
+    if (!this.data.agreed) {
+      wx.showToast({
+        title: "请同意用户协议",
+        icon: "none",
+      });
+      return false;
+    }
+    return true;
+  },
+
+  // 登录
+  async login() {
+    if (
+      !this.validatePhone() ||
+      !this.validateCode() ||
+      !this.validateAgreement()
+    )
+      return;
+
+    try {
+      wx.showLoading({
+        title: "登录中...",
+      });
+
+      // TODO: 调用登录API
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // 模拟登录成功数据
+      const userInfo = {
+        id: 1,
+        nickName: "测试用户",
+        avatarUrl: "",
+        phone: this.data.phone,
+      };
+
+      // 保存用户信息
+      wx.setStorageSync("userInfo", userInfo);
+
+      wx.hideLoading();
+      wx.showToast({
+        title: "登录成功",
+        icon: "success",
+      });
+
+      // 返回上一页
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1500);
+    } catch (error) {
+      wx.hideLoading();
+      wx.showToast({
+        title: "登录失败",
+        icon: "error",
+      });
+    }
+  },
+
+  // 注册
+  async register() {
+    if (
+      !this.validatePhone() ||
+      !this.validateCode() ||
+      !this.validateRegister() ||
+      !this.validateAgreement()
+    )
+      return;
+
+    try {
+      wx.showLoading({
+        title: "注册中...",
+      });
+
+      // TODO: 调用注册API
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // 模拟注册成功数据
+      const userInfo = {
+        id: 1,
+        nickName: this.data.name,
+        avatarUrl: "",
+        phone: this.data.phone,
+      };
+
+      // 保存用户信息
+      wx.setStorageSync("userInfo", userInfo);
+
+      wx.hideLoading();
+      wx.showToast({
+        title: "注册成功",
+        icon: "success",
+      });
+
+      // 返回上一页
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1500);
+    } catch (error) {
+      wx.hideLoading();
+      wx.showToast({
+        title: "注册失败",
+        icon: "error",
+      });
     }
   },
 
   // 微信登录
-  async handleWechatLogin() {
-    try {
-      this.setData({ isLoading: true });
+  async onGetUserInfo(e) {
+    if (!this.validateAgreement()) return;
 
-      // 获取微信登录凭证
-      const { code } = await wx.login();
-
-      // 获取用户信息
-      const { encryptedData, iv } = await new Promise((resolve, reject) => {
-        wx.getUserProfile({
-          desc: "用于完善用户资料",
-          success: resolve,
-          fail: reject,
+    if (e.detail.userInfo) {
+      try {
+        wx.showLoading({
+          title: "登录中...",
         });
-      });
 
-      // 调用登录接口
-      const { data } = await authApi.wxLogin(code, encryptedData, iv);
+        // TODO: 调用微信登录API
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // 保存登录状态
-      setToken(data.token);
-      setUserInfo(data.userInfo);
-
-      // 返回上一页或首页
-      const pages = getCurrentPages();
-      if (pages.length > 1) {
-        wx.navigateBack();
-      } else {
-        wx.switchTab({
-          url: "/pages/index/index",
+        // 保存用户信息
+        wx.setStorageSync("userInfo", {
+          ...e.detail.userInfo,
+          id: 1,
         });
-      }
-    } catch (error) {
-      wx.showToast({
-        title: error.message || "登录失败",
-        icon: "none",
-      });
-    } finally {
-      this.setData({ isLoading: false });
-    }
-  },
 
-  // 手机号登录
-  async handlePhoneLogin() {
-    const { phone, verificationCode } = this.data;
+        wx.hideLoading();
+        wx.showToast({
+          title: "登录成功",
+          icon: "success",
+        });
 
-    if (!phone || !/^1\d{10}$/.test(phone)) {
-      wx.showToast({
-        title: "请输入正确的手机号",
-        icon: "none",
-      });
-      return;
-    }
-
-    if (!verificationCode) {
-      wx.showToast({
-        title: "请输入验证码",
-        icon: "none",
-      });
-      return;
-    }
-
-    try {
-      this.setData({ isLoading: true });
-
-      // 调用验证码登录接口
-      const { data } = await authApi.verifyCodeLogin(phone, verificationCode);
-
-      // 保存登录状态
-      setToken(data.token);
-      setUserInfo(data.userInfo);
-
-      // 返回上一页或首页
-      const pages = getCurrentPages();
-      if (pages.length > 1) {
-        wx.navigateBack();
-      } else {
-        wx.switchTab({
-          url: "/pages/index/index",
+        // 返回上一页
+        setTimeout(() => {
+          wx.navigateBack();
+        }, 1500);
+      } catch (error) {
+        wx.hideLoading();
+        wx.showToast({
+          title: "登录失败",
+          icon: "error",
         });
       }
-    } catch (error) {
-      wx.showToast({
-        title: error.message || "登录失败",
-        icon: "none",
-      });
-    } finally {
-      this.setData({ isLoading: false });
-    }
-  },
-
-  // 获取微信绑定的手机号
-  async getPhoneNumber(e) {
-    if (e.detail.errMsg !== "getPhoneNumber:ok") {
-      return;
-    }
-
-    try {
-      this.setData({ isLoading: true });
-
-      const { code } = await wx.login();
-      const { encryptedData, iv } = e.detail;
-
-      // 调用获取手机号接口
-      const { data } = await authApi.getPhoneNumber(code, encryptedData, iv);
-
-      this.setData({
-        phone: data.phone,
-        loginType: "phone",
-      });
-    } catch (error) {
-      wx.showToast({
-        title: error.message || "获取手机号失败",
-        icon: "none",
-      });
-    } finally {
-      this.setData({ isLoading: false });
     }
   },
 });

@@ -20,13 +20,11 @@ module.exports = {
         onDelete: "CASCADE",
       },
       login_type: {
-        type: Sequelize.STRING(20),
+        type: Sequelize.ENUM("wechat", "phone"),
         allowNull: false,
-        comment: "wechat: 微信登录, phone: 手机号登录",
       },
       login_time: {
         type: Sequelize.DATE,
-        allowNull: false,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       ip_address: {

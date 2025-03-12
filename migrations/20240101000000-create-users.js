@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       openid: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING(64),
         unique: true,
         allowNull: true,
       },
@@ -20,17 +20,12 @@ module.exports = {
         allowNull: true,
       },
       nickname: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING(50),
         allowNull: true,
       },
       avatar_url: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(255),
         allowNull: true,
-      },
-      status: {
-        type: Sequelize.TINYINT,
-        defaultValue: 1,
-        comment: "1: 正常, 0: 禁用",
       },
       created_at: {
         allowNull: false,
@@ -47,6 +42,10 @@ module.exports = {
       last_login: {
         type: Sequelize.DATE,
         allowNull: true,
+      },
+      status: {
+        type: Sequelize.ENUM("active", "inactive", "banned"),
+        defaultValue: "active",
       },
     });
   },

@@ -1,10 +1,10 @@
-const { Model, DataTypes } = require("sequelize");
+const { Model } = require("sequelize");
 
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   class LoginRecord extends Model {
     static associate(models) {
       LoginRecord.belongsTo(models.User, {
-        foreignKey: "userId",
+        foreignKey: "user_id",
         as: "user",
       });
     }
@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      userId: {
+      user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -25,22 +25,17 @@ module.exports = (sequelize) => {
           key: "id",
         },
       },
-      loginType: {
-        type: DataTypes.STRING,
-        allowNull: false, // 'wechat' or 'phone'
-      },
-      ipAddress: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      userAgent: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      loginStatus: {
-        type: DataTypes.BOOLEAN,
+      login_type: {
+        type: DataTypes.ENUM("wechat", "phone"),
         allowNull: false,
-        defaultValue: true,
+      },
+      login_time: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+      },
+      ip_address: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
       },
     },
     {
@@ -48,6 +43,8 @@ module.exports = (sequelize) => {
       modelName: "LoginRecord",
       tableName: "login_records",
       timestamps: true,
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     }
   );
 

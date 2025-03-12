@@ -3,7 +3,6 @@ const cors = require("cors");
 const path = require("path");
 const dotenv = require("dotenv");
 const db = require("./config/database");
-const authRoutes = require("./routes/auth");
 
 // 使用绝对路径加载.env文件
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -28,9 +27,6 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
-
-// 注册认证路由
-app.use("/api/auth", authRoutes);
 
 // 健康检查路由
 app.get("/health", (req, res) => {

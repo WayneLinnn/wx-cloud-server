@@ -4,8 +4,7 @@
     "pages/courses/courses",
     "pages/booking/booking",
     "pages/profile/profile",
-    "pages/auth/auth",
-    "pages/test/test"
+    "pages/auth/auth"
   ],
   "window": {
     "backgroundTextStyle": "light",

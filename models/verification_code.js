@@ -1,9 +1,11 @@
+"use strict";
+
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class VerificationCode extends Model {
     static associate(models) {
-      // No associations needed for verification codes
+      // define associations here if needed
     }
   }
 
@@ -22,16 +24,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(6),
         allowNull: false,
       },
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
       expires_at: {
         type: DataTypes.DATE,
         allowNull: false,
       },
       used: {
         type: DataTypes.BOOLEAN,
+        allowNull: false,
         defaultValue: false,
       },
     },
@@ -39,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "VerificationCode",
       tableName: "verification_codes",
+      underscored: true,
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
