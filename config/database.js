@@ -1,38 +1,43 @@
-const mysql = require("mysql2/promise");
+const mysql = require("mysql2");
 const path = require("path");
 const dotenv = require("dotenv");
 
 // 使用绝对路径加载.env文件
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
-// 创建连接池配置
-const dbConfig = {
-  host: "10.41.111.100", // cynosdbmysql-95n2miaw 内网地址
-  port: 3306, // 端口号
-  user: "root", // root账号
-  password: "Linfeng19960110", // root密码
-  charset: "utf8", // 设置字符集
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+// 从环境变量获取数据库配置
+const config = {
+  host: process.env.MYSQL_ADDRESS || process.env.DB_HOST || "localhost",
+  user: process.env.MYSQL_USERNAME || process.env.DB_USER || "root",
+  password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "bunblebee",
+  port: process.env.MYSQL_PORT || 3306,
+  charset: "utf8mb4",
+  timezone: "+08:00",
+  multipleStatements: true,
 };
 
-// 打印连接配置（不包含密码）
-console.log("Database Config:", {
-  host: dbConfig.host,
-  port: dbConfig.port,
-  user: dbConfig.user,
-  charset: dbConfig.charset,
-  instance: "cynosdbmysql-95n2miaw",
-});
+// 创建连接池
+const pool = mysql.createPool(config);
 
-const pool = mysql.createPool(dbConfig);
+// 将连接池转换为 Promise 版本
+const promisePool = pool.promise();
+
+// 打印数据库配置（不包含敏感信息）
+console.log("Database configuration:", {
+  host: config.host,
+  user: config.user,
+  database: config.database,
+  port: config.port,
+  charset: config.charset,
+  timezone: config.timezone,
+});
 
 // 测试连接并创建数据库
 async function initializeDatabase() {
   try {
     console.log("尝试连接数据库...");
-    const connection = await pool.getConnection();
+    const connection = await promisePool.getConnection();
     console.log("数据库连接成功");
 
     // 创建数据库（如果不存在）
@@ -63,4 +68,4 @@ initializeDatabase()
     console.error("初始化过程出错:", err);
   });
 
-module.exports = pool;
+module.exports = promisePool;
