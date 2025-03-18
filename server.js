@@ -77,51 +77,30 @@ app.get("/check-database", async (req, res) => {
 // 创建数据库
 app.post("/create-database", async (req, res) => {
   try {
-    console.log("尝试创建数据库...");
-    const connection = await db.getConnection();
-
-    // 创建数据库
-    await connection.query(
-      "CREATE DATABASE IF NOT EXISTS bunblebee CHARACTER SET utf8 COLLATE utf8_general_ci"
-    );
-    console.log("数据库创建命令执行成功");
+    // 创建数据库（如果不存在）
+    await db.query("CREATE DATABASE IF NOT EXISTS bunblebee");
 
     // 切换到新创建的数据库
-    await connection.query("USE bunblebee");
-    console.log("切换到 bunblebee 数据库");
+    await db.query("USE bunblebee");
 
-    // 获取所有数据库列表以验证
-    const [databases] = await connection.query("SHOW DATABASES");
-
-    connection.release();
-
-    res.json({
-      status: "success",
-      message: "数据库创建成功",
-      database_name: "bunblebee",
-      available_databases: databases.map((db) => db.Database),
-    });
+    res.json({ message: "数据库创建并切换成功" });
   } catch (error) {
     console.error("创建数据库失败:", error);
-    res.status(500).json({
-      error: "创建数据库失败",
-      details: error.message,
-      code: error.code,
-      state: error.sqlState,
-    });
+    res.status(500).json({ error: "创建数据库失败", details: error.message });
   }
 });
 
 // 测试数据库连接
 app.get("/test-db", async (req, res) => {
+  let connection;
   try {
     console.log("正在测试数据库连接...");
-    const connection = await db.getConnection();
+    connection = await db.getConnection();
+    console.log("成功获取数据库连接");
 
     // 测试查询
     const [result] = await connection.query("SELECT 1 + 1 as sum");
-
-    connection.release();
+    console.log("测试查询成功:", result);
 
     res.json({
       status: "success",
@@ -135,7 +114,12 @@ app.get("/test-db", async (req, res) => {
       details: error.message,
       code: error.code,
       state: error.sqlState,
+      stack: error.stack,
     });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
 
