@@ -3,8 +3,6 @@ const cors = require("cors");
 const path = require("path");
 const dotenv = require("dotenv");
 const db = require("./config/database");
-const initDatabase = require("./utils/initDatabase");
-const authRoutes = require("./routes/auth");
 
 // 使用绝对路径加载.env文件
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -23,16 +21,12 @@ console.log("Environment variables:", {
 // 中间件
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // 添加请求日志中间件
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
-
-// 路由
-app.use("/api/auth", authRoutes);
 
 // 健康检查路由
 app.get("/health", (req, res) => {
@@ -208,70 +202,26 @@ app.post("/users", async (req, res) => {
 
 // 错误处理中间件
 app.use((err, req, res, next) => {
-  console.error("服务器错误:", {
-    message: err.message,
-    stack: err.stack,
-    code: err.code,
-    path: req.path,
-    method: req.method,
-  });
-  res.status(500).json({
-    error: "服务器内部错误",
-    message: err.message,
-    path: req.path,
-  });
+  console.error("服务器错误:", err);
+  res.status(500).json({ error: "服务器内部错误" });
 });
 
 // 404处理
 app.use((req, res) => {
-  const message = `404 - 未找到路径: ${req.path}`;
-  console.log(message);
-  res.status(404).json({
-    error: "路径不存在",
-    path: req.path,
-    method: req.method,
-    timestamp: new Date().toISOString(),
-  });
+  console.log(`404 - 未找到路径: ${req.path}`);
+  res.status(404).json({ error: "路径不存在" });
 });
 
-// 数据库初始化和服务器启动
-async function startServer() {
-  try {
-    // 打印环境信息
-    console.log("Starting server with configuration:", {
-      NODE_ENV: process.env.NODE_ENV,
-      PORT: port,
-      DB_HOST: process.env.MYSQL_ADDRESS || process.env.DB_HOST,
-      DB_NAME: process.env.DB_NAME,
-    });
-
-    // 初始化数据库
-    await initDatabase();
-    console.log("Database initialized successfully");
-
-    // 启动服务器
-    app.listen(port, "0.0.0.0", () => {
-      console.log(
-        `Server is running on port ${port} (${process.env.NODE_ENV} mode)`
-      );
-      console.log("Available routes:");
-      console.log("- GET /");
-      console.log("- GET /health");
-      console.log("- GET /check-database");
-      console.log("- POST /create-database");
-      console.log("- GET /test-db");
-      console.log("- POST /init-tables");
-      console.log("- GET /users");
-      console.log("- POST /users");
-    });
-  } catch (error) {
-    console.error("Failed to start server:", {
-      message: error.message,
-      stack: error.stack,
-      code: error.code,
-    });
-    process.exit(1);
-  }
-}
-
-startServer();
+// 启动服务器，监听所有网络接口
+app.listen(port, "0.0.0.0", () => {
+  console.log(`服务器运行在端口 ${port}`);
+  console.log("可用路由:");
+  console.log("- GET /");
+  console.log("- GET /health");
+  console.log("- GET /check-database");
+  console.log("- POST /create-database");
+  console.log("- GET /test-db");
+  console.log("- POST /init-tables");
+  console.log("- GET /users");
+  console.log("- POST /users");
+});
